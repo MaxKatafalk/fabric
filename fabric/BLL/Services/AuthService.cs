@@ -68,6 +68,20 @@ namespace fabric.BLL.Services
                 return sb.ToString();
             }
         }
+
+        public bool DeleteUser(int id)
+        {
+            using (var db = new AppDbContext())
+            {
+                var user = db.Users.FirstOrDefault(u => u.Id == id);
+                if (user == null)
+                    return false;
+
+                db.Users.Remove(user);
+                db.SaveChanges();
+                return true;
+            }
+        }
     }
 }
 
