@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using fabric.BLL.Services;
 using fabric.DAL;
 using fabric.DAL.Models;
+using fabric.Forms;
 
 namespace fabric.Forms
 {
@@ -22,6 +23,7 @@ namespace fabric.Forms
         private ComboBox _comboBoxRole;
         private Button _buttonAdd;
         private Button _buttonDelete;
+        private Button buttonOrders;
         private ListBox _listBoxUsers;
         private User _selectedUser;
 
@@ -115,6 +117,15 @@ namespace fabric.Forms
             _listBoxUsers.Height = 360;
             _listBoxUsers.SelectedIndexChanged += ListBoxUsers_SelectedIndexChanged;
 
+            buttonOrders = new Button();
+            buttonOrders.Text = "Заказы";
+            buttonOrders.Left = 260;
+            buttonOrders.Top = 375;
+            buttonOrders.Width = 350;
+            buttonOrders.Height = 30;
+            buttonOrders.Click += ButtonOrders_Click;
+
+            this.Controls.Add(buttonOrders);
             this.Controls.Add(_labelTitle);
             this.Controls.Add(_labelUsername);
             this.Controls.Add(_textBoxUsername);
@@ -127,6 +138,11 @@ namespace fabric.Forms
             this.Controls.Add(_buttonAdd);
             this.Controls.Add(_buttonDelete);
             this.Controls.Add(_listBoxUsers);
+        }
+        private void ButtonOrders_Click(object sender, EventArgs e)
+        {
+            OrderForm form = new OrderForm(_currentUser);
+            form.ShowDialog();
         }
 
         private void ButtonAdd_Click(object sender, EventArgs e)

@@ -8,6 +8,7 @@ namespace fabric.DAL
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Material> Materials { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -29,6 +30,12 @@ namespace fabric.DAL
             modelBuilder.Entity<Material>().HasKey(m => m.Id);
             modelBuilder.Entity<Material>().Property(m => m.Name).IsRequired();
             modelBuilder.Entity<Material>().Property(m => m.Quantity).HasDefaultValue(0);
+
+            modelBuilder.Entity<Order>().HasKey(o => o.Id);
+            modelBuilder.Entity<Order>().Property(o => o.OrderNumber).IsRequired();
+            modelBuilder.Entity<Order>().Property(o => o.CustomerName).IsRequired();
+            modelBuilder.Entity<Order>().Property(o => o.OrderDate).IsRequired();
+            modelBuilder.Entity<Order>().Property(o => o.Status).HasDefaultValue(OrderStatus.Created);
 
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "Master" },
