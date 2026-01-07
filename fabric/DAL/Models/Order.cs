@@ -4,10 +4,8 @@ namespace fabric.DAL.Models
 {
     public enum OrderStatus
     {
-        Created = 1,
-        InProgress = 2,
-        Ready = 3,
-        Closed = 4
+        InProgress = 1,
+        Completed = 2
     }
 
     public class Order
@@ -18,7 +16,6 @@ namespace fabric.DAL.Models
         private DateTime _orderDate;
         private DateTime? _dueDate;
         private OrderStatus _status;
-        private int _totalQuantity;
         private string _notes;
         private int? _managerId;
 
@@ -56,12 +53,6 @@ namespace fabric.DAL.Models
         {
             get => _status;
             set => _status = value;
-        }
-
-        public int TotalQuantity
-        {
-            get => _totalQuantity;
-            set => _totalQuantity = value;
         }
 
         public string Notes

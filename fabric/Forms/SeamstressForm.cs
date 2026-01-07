@@ -98,11 +98,13 @@ namespace fabric.Forms
             {
                 MessageBox.Show("Отмечено");
                 LoadMyTasks();
+                fabric.AppEvents.RaiseOrderStatusChanged();
             }
             else
             {
                 MessageBox.Show("Ошибка при отметке выполнения. Возможно, не хватает материала на складе.");
             }
         }
+
     }
 }

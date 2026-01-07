@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using fabric.DAL;
 using fabric.DAL.Models;
+using System.Windows.Forms;
 
 namespace fabric.BLL.Services
 {
     public class ProductionTaskService
     {
-
         public bool CreateTask(int orderId, string description, int quantityAssigned, int assignedToUserId, int assignedByUserId, int? materialId, decimal quantityPerUnit)
         {
             if (orderId <= 0 || quantityAssigned <= 0 || assignedToUserId <= 0) return false;
@@ -29,7 +29,15 @@ namespace fabric.BLL.Services
                     QuantityPerUnit = quantityPerUnit
                 };
                 db.ProductionTasks.Add(task);
+
+                var order = db.Orders.FirstOrDefault(o => o.Id == orderId);
+                if (order != null && order.Status != OrderStatus.InProgress)
+                {
+                    order.Status = OrderStatus.InProgress;
+                }
+
                 db.SaveChanges();
+                try { fabric.AppEvents.RaiseOrderStatusChanged(); } catch { }
                 return true;
             }
         }
@@ -67,17 +75,11 @@ namespace fabric.BLL.Services
                 var task = db.ProductionTasks.FirstOrDefault(t => t.Id == taskId);
                 if (task == null) return false;
 
-                int remainingBefore = task.QuantityAssigned - task.QuantityCompleted;
-                int toAdd = Math.Min(quantityCompleted, remainingBefore);
+                int remaining = task.QuantityAssigned - task.QuantityCompleted;
+                int toAdd = Math.Min(quantityCompleted, remaining);
                 if (toAdd <= 0) return false;
 
                 task.QuantityCompleted += toAdd;
-
-                decimal qtyToConsume = 0m;
-                if (task.MaterialId.HasValue && task.QuantityPerUnit > 0)
-                {
-                    qtyToConsume = task.QuantityPerUnit * toAdd;               
-                }
 
                 if (task.QuantityCompleted >= task.QuantityAssigned)
                 {
@@ -91,8 +93,28 @@ namespace fabric.BLL.Services
                 }
 
                 db.SaveChanges();
+
+                var order = db.Orders.FirstOrDefault(o => o.Id == task.OrderId);
+                if (order != null)
+                {
+                    bool hasUnfinishedTasks = db.ProductionTasks
+                        .Any(t => t.OrderId == order.Id && t.QuantityCompleted < t.QuantityAssigned);
+
+
+                    if (!hasUnfinishedTasks)
+                    {
+                        order.Status = OrderStatus.Completed;
+                        db.SaveChanges();
+                    }
+                }
+
+                AppEvents.RaiseOrderStatusChanged();
+
                 return true;
             }
         }
+
+
+
     }
 }

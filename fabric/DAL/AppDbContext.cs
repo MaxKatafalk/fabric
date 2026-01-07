@@ -36,7 +36,8 @@ namespace fabric.DAL
             modelBuilder.Entity<Order>().Property(o => o.OrderNumber).IsRequired();
             modelBuilder.Entity<Order>().Property(o => o.CustomerName).IsRequired();
             modelBuilder.Entity<Order>().Property(o => o.OrderDate).IsRequired();
-            modelBuilder.Entity<Order>().Property(o => o.Status).HasDefaultValue(OrderStatus.Created);
+            modelBuilder.Entity<Order>().Property(o => o.Status).HasDefaultValue(OrderStatus.InProgress);
+            modelBuilder.Entity<Order>().Property(o => o.Notes).IsRequired();
 
             modelBuilder.Entity<ProductionTask>().HasKey(t => t.Id);
             modelBuilder.Entity<ProductionTask>().Property(t => t.Description).IsRequired(false);

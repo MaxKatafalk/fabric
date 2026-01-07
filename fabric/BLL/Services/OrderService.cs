@@ -8,9 +8,9 @@ namespace fabric.BLL.Services
 {
     public class OrderService
     {
-        public bool CreateOrder(string orderNumber, string customerName, DateTime orderDate, DateTime? dueDate, int totalQuantity, string notes, int? managerId)
+        public bool CreateOrder(string orderNumber, string customerName, DateTime orderDate, DateTime? dueDate, string notes, int? managerId)
         {
-            if (string.IsNullOrWhiteSpace(orderNumber) || string.IsNullOrWhiteSpace(customerName) || totalQuantity <= 0)
+            if (string.IsNullOrWhiteSpace(orderNumber) || string.IsNullOrWhiteSpace(customerName) || string.IsNullOrWhiteSpace(notes))
                 return false;
 
             using (var db = new AppDbContext())
@@ -24,8 +24,7 @@ namespace fabric.BLL.Services
                     CustomerName = customerName,
                     OrderDate = orderDate,
                     DueDate = dueDate,
-                    Status = OrderStatus.Created,
-                    TotalQuantity = totalQuantity,
+                    Status = OrderStatus.InProgress,
                     Notes = notes,
                     ManagerId = managerId
                 });
