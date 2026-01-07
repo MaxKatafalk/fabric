@@ -14,6 +14,8 @@ namespace fabric.DAL.Models
         private ProductionTaskStatus _status;
         private DateTime _startDate;
         private DateTime? _endDate;
+        private int? _materialId;
+        private decimal _quantityPerUnit;
 
         public int Id
         {
@@ -73,6 +75,18 @@ namespace fabric.DAL.Models
         {
             get => _endDate;
             set => _endDate = value;
+        }
+
+        public int? MaterialId
+        {
+            get => _materialId;
+            set => _materialId = value;
+        }
+
+        public decimal QuantityPerUnit
+        {
+            get => _quantityPerUnit;
+            set => _quantityPerUnit = value;
         }
     }
 }

@@ -8,7 +8,8 @@ namespace fabric.BLL.Services
 {
     public class ProductionTaskService
     {
-        public bool CreateTask(int orderId, string description, int quantityAssigned, int assignedToUserId, int assignedByUserId)
+
+        public bool CreateTask(int orderId, string description, int quantityAssigned, int assignedToUserId, int assignedByUserId, int? materialId, decimal quantityPerUnit)
         {
             if (orderId <= 0 || quantityAssigned <= 0 || assignedToUserId <= 0) return false;
 
@@ -23,7 +24,9 @@ namespace fabric.BLL.Services
                     AssignedToUserId = assignedToUserId,
                     AssignedByUserId = assignedByUserId,
                     Status = ProductionTaskStatus.Assigned,
-                    StartDate = DateTime.Now
+                    StartDate = DateTime.Now,
+                    MaterialId = materialId,
+                    QuantityPerUnit = quantityPerUnit
                 };
                 db.ProductionTasks.Add(task);
                 db.SaveChanges();
@@ -55,7 +58,7 @@ namespace fabric.BLL.Services
             }
         }
 
-        public bool UpdateProgress(int taskId, int quantityCompleted)
+        public bool UpdateProgress(int taskId, int quantityCompleted, int performedByUserId)
         {
             if (quantityCompleted <= 0) return false;
 
@@ -63,7 +66,19 @@ namespace fabric.BLL.Services
             {
                 var task = db.ProductionTasks.FirstOrDefault(t => t.Id == taskId);
                 if (task == null) return false;
-                task.QuantityCompleted += quantityCompleted;
+
+                int remainingBefore = task.QuantityAssigned - task.QuantityCompleted;
+                int toAdd = Math.Min(quantityCompleted, remainingBefore);
+                if (toAdd <= 0) return false;
+
+                task.QuantityCompleted += toAdd;
+
+                decimal qtyToConsume = 0m;
+                if (task.MaterialId.HasValue && task.QuantityPerUnit > 0)
+                {
+                    qtyToConsume = task.QuantityPerUnit * toAdd;               
+                }
+
                 if (task.QuantityCompleted >= task.QuantityAssigned)
                 {
                     task.QuantityCompleted = task.QuantityAssigned;
@@ -74,6 +89,7 @@ namespace fabric.BLL.Services
                 {
                     task.Status = ProductionTaskStatus.InProgress;
                 }
+
                 db.SaveChanges();
                 return true;
             }

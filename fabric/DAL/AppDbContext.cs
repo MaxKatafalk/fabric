@@ -40,7 +40,7 @@ namespace fabric.DAL
 
             modelBuilder.Entity<ProductionTask>().HasKey(t => t.Id);
             modelBuilder.Entity<ProductionTask>().Property(t => t.Description).IsRequired(false);
-            modelBuilder.Entity<ProductionTask>().Property(t => t.Status).HasDefaultValue(ProductionTaskStatus.Assigned);
+            modelBuilder.Entity<ProductionTask>().Property(t => t.QuantityPerUnit).HasDefaultValue(0);
 
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "Master" },

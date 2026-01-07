@@ -93,7 +93,7 @@ namespace fabric.Forms
             }
 
             int qty = (int)_numericDone.Value;
-            bool ok = _taskService.UpdateProgress(_selectedTask.Id, qty);
+            bool ok = _taskService.UpdateProgress(_selectedTask.Id, qty, _currentUser.Id);
             if (ok)
             {
                 MessageBox.Show("Отмечено");
@@ -101,7 +101,7 @@ namespace fabric.Forms
             }
             else
             {
-                MessageBox.Show("Ошибка при отметке выполнения");
+                MessageBox.Show("Ошибка при отметке выполнения. Возможно, не хватает материала на складе.");
             }
         }
     }

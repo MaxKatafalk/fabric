@@ -15,8 +15,10 @@ namespace fabric.Forms
         private ListBox _listBoxOrders;
         private ListBox _listBoxTasks;
         private ComboBox _comboBoxSeamstress;
+        private ComboBox _comboBoxMaterial;
         private TextBox _textBoxDescription;
         private TextBox _textBoxQuantity;
+        private TextBox _textBoxQtyPerUnit;
         private Button _buttonCreateTask;
         private Order _selectedOrder;
 
@@ -24,16 +26,22 @@ namespace fabric.Forms
         {
             _currentUser = user;
             _orderService = new OrderService();
-            _taskService = new ProductionTaskService();
+            _task_service_init();
             InitializeComponent();
             LoadOrders();
             LoadSeamstresses();
+            LoadMaterials();
+        }
+
+        private void _task_service_init()
+        {
+            _taskService = new ProductionTaskService();
         }
 
         private void InitializeComponent()
         {
             this.Text = "Мастер";
-            this.Width = 900;
+            this.Width = 1000;
             this.Height = 600;
             this.StartPosition = FormStartPosition.CenterScreen;
 
@@ -47,39 +55,53 @@ namespace fabric.Forms
             _listBoxTasks = new ListBox();
             _listBoxTasks.Left = 460;
             _listBoxTasks.Top = 20;
-            _listBoxTasks.Width = 400;
+            _listBoxTasks.Width = 500;
             _listBoxTasks.Height = 260;
 
             _comboBoxSeamstress = new ComboBox();
             _comboBoxSeamstress.Left = 460;
             _comboBoxSeamstress.Top = 300;
-            _comboBoxSeamstress.Width = 240;
+            _comboBoxSeamstress.Width = 300;
             _comboBoxSeamstress.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            _comboBoxMaterial = new ComboBox();
+            _comboBoxMaterial.Left = 460;
+            _comboBoxMaterial.Top = 340;
+            _comboBoxMaterial.Width = 200;
+            _comboBoxMaterial.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            _textBoxQtyPerUnit = new TextBox();
+            _textBoxQtyPerUnit.Left = 670;
+            _textBoxQtyPerUnit.Top = 340;
+            _textBoxQtyPerUnit.Width = 120;
+            _textBoxQtyPerUnit.PlaceholderText = "Материал на ед.";
 
             _textBoxDescription = new TextBox();
             _textBoxDescription.Left = 460;
-            _textBoxDescription.Top = 340;
-            _textBoxDescription.Width = 400;
+            _textBoxDescription.Top = 380;
+            _textBoxDescription.Width = 500;
             _textBoxDescription.Height = 60;
             _textBoxDescription.Multiline = true;
             _textBoxDescription.PlaceholderText = "Описание задания";
 
             _textBoxQuantity = new TextBox();
             _textBoxQuantity.Left = 460;
-            _textBoxQuantity.Top = 410;
+            _textBoxQuantity.Top = 450;
             _textBoxQuantity.Width = 120;
             _textBoxQuantity.PlaceholderText = "Количество";
 
             _buttonCreateTask = new Button();
             _buttonCreateTask.Text = "Создать задание";
             _buttonCreateTask.Left = 460;
-            _buttonCreateTask.Top = 450;
+            _buttonCreateTask.Top = 490;
             _buttonCreateTask.Width = 200;
             _buttonCreateTask.Click += ButtonCreateTask_Click;
 
             this.Controls.Add(_listBoxOrders);
             this.Controls.Add(_listBoxTasks);
             this.Controls.Add(_comboBoxSeamstress);
+            this.Controls.Add(_comboBoxMaterial);
+            this.Controls.Add(_textBoxQtyPerUnit);
             this.Controls.Add(_textBoxDescription);
             this.Controls.Add(_textBoxQuantity);
             this.Controls.Add(_buttonCreateTask);
@@ -109,6 +131,20 @@ namespace fabric.Forms
             if (_comboBoxSeamstress.Items.Count > 0) _comboBoxSeamstress.SelectedIndex = 0;
         }
 
+        private void LoadMaterials()
+        {
+            _comboBoxMaterial.Items.Clear();
+            using (var db = new AppDbContext())
+            {
+                var mats = db.Materials.ToList();
+                foreach (var m in mats)
+                {
+                    _comboBoxMaterial.Items.Add(new ComboboxItem { Text = $"{m.Name} ({m.Quantity} {m.Unit})", Value = m.Id });
+                }
+            }
+            if (_comboBoxMaterial.Items.Count > 0) _comboBoxMaterial.SelectedIndex = 0;
+        }
+
         private void ListBoxOrders_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_listBoxOrders.SelectedIndex < 0)
@@ -131,7 +167,8 @@ namespace fabric.Forms
             var tasks = _taskService.GetTasksByOrder(_selectedOrder.Id);
             foreach (var t in tasks)
             {
-                _listBoxTasks.Items.Add($"{t.Id}: ToUser:{t.AssignedToUserId} | {t.Description} | {t.QuantityCompleted}/{t.QuantityAssigned} | {t.Status}");
+                string materialInfo = t.MaterialId.HasValue ? $"Mat:{t.MaterialId} x{t.QuantityPerUnit}" : "";
+                _listBoxTasks.Items.Add($"{t.Id}: ToUser:{t.AssignedToUserId} | {t.Description} | {t.QuantityCompleted}/{t.QuantityAssigned} | {t.Status} {materialInfo}");
             }
         }
 
@@ -155,14 +192,28 @@ namespace fabric.Forms
                 return;
             }
 
+            int? materialId = null;
+            decimal qtyPerUnit = 0m;
+            if (_comboBoxMaterial.SelectedItem != null)
+            {
+                var matItem = _comboBoxMaterial.SelectedItem as ComboboxItem;
+                materialId = (int)matItem.Value;
+                if (!decimal.TryParse(_textBoxQtyPerUnit.Text.Trim(), out qtyPerUnit))
+                {
+                    MessageBox.Show("Неверно указано количество материала на единицу");
+                    return;
+                }
+            }
+
             var selected = _comboBoxSeamstress.SelectedItem as ComboboxItem;
             int seamId = (int)selected.Value;
-            bool ok = _taskService.CreateTask(_selectedOrder.Id, _textBoxDescription.Text.Trim(), qty, seamId, _currentUser.Id);
+            bool ok = _taskService.CreateTask(_selectedOrder.Id, _textBoxDescription.Text.Trim(), qty, seamId, _currentUser.Id, materialId, qtyPerUnit);
             if (ok)
             {
                 MessageBox.Show("Задание создано");
                 _textBoxDescription.Clear();
                 _textBoxQuantity.Clear();
+                _textBoxQtyPerUnit.Clear();
                 LoadTasksForOrder();
             }
             else
