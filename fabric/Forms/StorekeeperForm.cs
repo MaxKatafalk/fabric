@@ -11,6 +11,7 @@ namespace fabric.Forms
     {
         private User _currentUser;
         private MaterialService _materialService;
+
         private ListBox _listBoxMaterials;
         private Button _buttonRefresh;
         private TextBox _textBoxName;
@@ -19,7 +20,8 @@ namespace fabric.Forms
         private Button _buttonAddMaterial;
         private NumericUpDown _numericQuantity;
         private Button _buttonReceive;
-        private Button _buttonIssue;
+        private Button _buttonHistory;
+        private ListBox _listBoxHistory;
         private Material _selectedMaterial;
 
         public StorekeeperForm(User user)
@@ -30,11 +32,13 @@ namespace fabric.Forms
             LoadMaterials();
         }
 
+
+
         private void InitializeComponent()
         {
             this.Text = "Кладовщик";
-            this.Width = 800;
-            this.Height = 500;
+            this.Width = 1000;
+            this.Height = 600;
             this.StartPosition = FormStartPosition.CenterScreen;
 
             _listBoxMaterials = new ListBox();
@@ -91,12 +95,18 @@ namespace fabric.Forms
             _buttonReceive.Text = "Принять";
             _buttonReceive.Click += ButtonReceive_Click;
 
-            _buttonIssue = new Button();
-            _buttonIssue.Left = 460;
-            _buttonIssue.Top = 260;
-            _buttonIssue.Width = 280;
-            _buttonIssue.Text = "Выдать";
-            _buttonIssue.Click += ButtonIssue_Click;
+            _buttonHistory = new Button();
+            _buttonHistory.Left = 460;
+            _buttonHistory.Top = 300;
+            _buttonHistory.Width = 280;
+            _buttonHistory.Text = "История";
+            _buttonHistory.Click += ButtonHistory_Click;
+
+            _listBoxHistory = new ListBox();
+            _listBoxHistory.Left = 760;
+            _listBoxHistory.Top = 20;
+            _listBoxHistory.Width = 420;
+            _listBoxHistory.Height = 520;
 
             this.Controls.Add(_listBoxMaterials);
             this.Controls.Add(_buttonRefresh);
@@ -106,7 +116,8 @@ namespace fabric.Forms
             this.Controls.Add(_buttonAddMaterial);
             this.Controls.Add(_numericQuantity);
             this.Controls.Add(_buttonReceive);
-            this.Controls.Add(_buttonIssue);
+            this.Controls.Add(_buttonHistory);
+            this.Controls.Add(_listBoxHistory);
         }
 
         private void LoadMaterials()
@@ -117,6 +128,8 @@ namespace fabric.Forms
             {
                 _listBoxMaterials.Items.Add($"{m.Id}: {m.Name} — {m.Quantity} {m.Unit}");
             }
+            _listBoxHistory.Items.Clear();
+            _selectedMaterial = null;
         }
 
         private void ButtonAddMaterial_Click(object sender, EventArgs e)
@@ -149,12 +162,14 @@ namespace fabric.Forms
             if (_listBoxMaterials.SelectedIndex < 0)
             {
                 _selectedMaterial = null;
+                _listBoxHistory.Items.Clear();
                 return;
             }
 
             string item = _listBoxMaterials.Items[_listBoxMaterials.SelectedIndex].ToString();
             int id = int.Parse(item.Split(':')[0]);
             _selectedMaterial = _materialService.GetById(id);
+            _listBoxHistory.Items.Clear();
         }
 
         private void ButtonReceive_Click(object sender, EventArgs e)
@@ -171,20 +186,9 @@ namespace fabric.Forms
                 MessageBox.Show("Введите положительное количество");
                 return;
             }
-
-            bool ok = _materialService.AdjustQuantity(_selectedMaterial.Id, qty);
-            if (ok)
-            {
-                MessageBox.Show("Количество обновлено");
-                LoadMaterials();
-            }
-            else
-            {
-                MessageBox.Show("Ошибка при приёме");
-            }
         }
 
-        private void ButtonIssue_Click(object sender, EventArgs e)
+        private void ButtonHistory_Click(object sender, EventArgs e)
         {
             if (_selectedMaterial == null)
             {
@@ -192,23 +196,7 @@ namespace fabric.Forms
                 return;
             }
 
-            decimal qty = _numericQuantity.Value;
-            if (qty <= 0)
-            {
-                MessageBox.Show("Введите положительное количество");
-                return;
-            }
-
-            bool ok = _materialService.AdjustQuantity(_selectedMaterial.Id, -qty);
-            if (ok)
-            {
-                MessageBox.Show("Материал выдан");
-                LoadMaterials();
-            }
-            else
-            {
-                MessageBox.Show("Ошибка: недостаточно на складе или другая ошибка");
-            }
+            _listBoxHistory.Items.Clear();
         }
     }
 }

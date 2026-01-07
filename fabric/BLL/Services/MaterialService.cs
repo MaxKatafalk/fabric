@@ -7,37 +7,11 @@ namespace fabric.BLL.Services
 {
     public class MaterialService
     {
-        public bool AddMaterial(string name, decimal quantity, string unit)
-        {
-            if (string.IsNullOrWhiteSpace(name) || quantity < 0)
-                return false;
-
-            using (var db = new AppDbContext())
-            {
-                var exists = db.Materials.FirstOrDefault(m => m.Name == name && m.Unit == unit);
-                if (exists != null)
-                {
-                    exists.Quantity += quantity;
-                }
-                else
-                {
-                    db.Materials.Add(new Material
-                    {
-                        Name = name,
-                        Quantity = quantity,
-                        Unit = unit
-                    });
-                }
-                db.SaveChanges();
-                return true;
-            }
-        }
-
         public List<Material> GetAll()
         {
             using (var db = new AppDbContext())
             {
-                return db.Materials.ToList();
+                return db.Materials.OrderBy(m => m.Name).ToList();
             }
         }
 
@@ -49,15 +23,18 @@ namespace fabric.BLL.Services
             }
         }
 
-        public bool AdjustQuantity(int materialId, decimal delta)
+        public bool AddMaterial(string name, decimal quantity, string unit)
         {
+            if (string.IsNullOrWhiteSpace(name) || quantity < 0) return false;
             using (var db = new AppDbContext())
             {
-                var mat = db.Materials.FirstOrDefault(m => m.Id == materialId);
-                if (mat == null) return false;
-                decimal newQty = mat.Quantity + delta;
-                if (newQty < 0) return false;
-                mat.Quantity = newQty;
+                var m = new Material
+                {
+                    Name = name,
+                    Quantity = quantity,
+                    Unit = unit
+                };
+                db.Materials.Add(m);
                 db.SaveChanges();
                 return true;
             }

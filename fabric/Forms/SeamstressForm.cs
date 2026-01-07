@@ -13,6 +13,7 @@ namespace fabric.Forms
         private ListBox _listBoxTasks;
         private NumericUpDown _numericDone;
         private Button _buttonMarkDone;
+        private Button _buttonRefresh;
         private ProductionTask _selectedTask;
 
         public SeamstressForm(User user)
@@ -51,9 +52,17 @@ namespace fabric.Forms
             _buttonMarkDone.Width = 160;
             _buttonMarkDone.Click += ButtonMarkDone_Click;
 
+            _buttonRefresh = new Button();
+            _buttonRefresh.Text = "Обновить";
+            _buttonRefresh.Left = 340;
+            _buttonRefresh.Top = 400;
+            _buttonRefresh.Width = 120;
+            _buttonRefresh.Click += (s, e) => LoadMyTasks();
+
             this.Controls.Add(_listBoxTasks);
             this.Controls.Add(_numericDone);
             this.Controls.Add(_buttonMarkDone);
+            this.Controls.Add(_buttonRefresh);
         }
 
         private void LoadMyTasks()
@@ -105,6 +114,5 @@ namespace fabric.Forms
                 MessageBox.Show("Ошибка при отметке выполнения. Возможно, не хватает материала на складе.");
             }
         }
-
     }
 }

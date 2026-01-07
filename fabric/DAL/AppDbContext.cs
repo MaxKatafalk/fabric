@@ -10,6 +10,7 @@ namespace fabric.DAL
         public DbSet<Material> Materials { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<ProductionTask> ProductionTasks { get; set; }
+        public DbSet<MaterialTransaction> MaterialTransactions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -37,11 +38,14 @@ namespace fabric.DAL
             modelBuilder.Entity<Order>().Property(o => o.CustomerName).IsRequired();
             modelBuilder.Entity<Order>().Property(o => o.OrderDate).IsRequired();
             modelBuilder.Entity<Order>().Property(o => o.Status).HasDefaultValue(OrderStatus.InProgress);
-            modelBuilder.Entity<Order>().Property(o => o.Notes).IsRequired();
+            modelBuilder.Entity<Order>().Property(o => o.Notes).IsRequired(false);
 
             modelBuilder.Entity<ProductionTask>().HasKey(t => t.Id);
             modelBuilder.Entity<ProductionTask>().Property(t => t.Description).IsRequired(false);
             modelBuilder.Entity<ProductionTask>().Property(t => t.QuantityPerUnit).HasDefaultValue(0);
+
+            modelBuilder.Entity<MaterialTransaction>().HasKey(mt => mt.Id);
+            modelBuilder.Entity<MaterialTransaction>().Property(mt => mt.Timestamp).IsRequired();
 
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "Master" },

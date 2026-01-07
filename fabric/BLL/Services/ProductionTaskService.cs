@@ -92,6 +92,17 @@ namespace fabric.BLL.Services
                     task.Status = ProductionTaskStatus.InProgress;
                 }
 
+                if (task.MaterialId.HasValue && task.QuantityPerUnit > 0)
+                {
+                    decimal qtyToConsume = task.QuantityPerUnit * toAdd;
+                    var trService = new MaterialTransactionService();
+                    bool okTr = trService.RecordTransaction(task.MaterialId.Value, -qtyToConsume, performedByUserId, task.Id);
+                    if (!okTr)
+                    {
+                        return false;
+                    }
+                }
+
                 db.SaveChanges();
 
                 var order = db.Orders.FirstOrDefault(o => o.Id == task.OrderId);
@@ -99,7 +110,6 @@ namespace fabric.BLL.Services
                 {
                     bool hasUnfinishedTasks = db.ProductionTasks
                         .Any(t => t.OrderId == order.Id && t.QuantityCompleted < t.QuantityAssigned);
-
 
                     if (!hasUnfinishedTasks)
                     {
@@ -109,11 +119,9 @@ namespace fabric.BLL.Services
                 }
 
                 AppEvents.RaiseOrderStatusChanged();
-
                 return true;
             }
         }
-
 
 
     }
