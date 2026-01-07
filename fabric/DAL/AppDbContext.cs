@@ -9,6 +9,7 @@ namespace fabric.DAL
         public DbSet<Role> Roles { get; set; }
         public DbSet<Material> Materials { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<ProductionTask> ProductionTasks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -36,6 +37,10 @@ namespace fabric.DAL
             modelBuilder.Entity<Order>().Property(o => o.CustomerName).IsRequired();
             modelBuilder.Entity<Order>().Property(o => o.OrderDate).IsRequired();
             modelBuilder.Entity<Order>().Property(o => o.Status).HasDefaultValue(OrderStatus.Created);
+
+            modelBuilder.Entity<ProductionTask>().HasKey(t => t.Id);
+            modelBuilder.Entity<ProductionTask>().Property(t => t.Description).IsRequired(false);
+            modelBuilder.Entity<ProductionTask>().Property(t => t.Status).HasDefaultValue(ProductionTaskStatus.Assigned);
 
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "Master" },

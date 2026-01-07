@@ -1,0 +1,82 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using fabric.DAL;
+using fabric.DAL.Models;
+
+namespace fabric.BLL.Services
+{
+    public class ProductionTaskService
+    {
+        public bool CreateTask(int orderId, string description, int quantityAssigned, int assignedToUserId, int assignedByUserId)
+        {
+            if (orderId <= 0 || quantityAssigned <= 0 || assignedToUserId <= 0) return false;
+
+            using (var db = new AppDbContext())
+            {
+                var task = new ProductionTask
+                {
+                    OrderId = orderId,
+                    Description = description,
+                    QuantityAssigned = quantityAssigned,
+                    QuantityCompleted = 0,
+                    AssignedToUserId = assignedToUserId,
+                    AssignedByUserId = assignedByUserId,
+                    Status = ProductionTaskStatus.Assigned,
+                    StartDate = DateTime.Now
+                };
+                db.ProductionTasks.Add(task);
+                db.SaveChanges();
+                return true;
+            }
+        }
+
+        public List<ProductionTask> GetTasksByAssignedUser(int userId)
+        {
+            using (var db = new AppDbContext())
+            {
+                return db.ProductionTasks.Where(t => t.AssignedToUserId == userId).OrderByDescending(t => t.StartDate).ToList();
+            }
+        }
+
+        public List<ProductionTask> GetTasksByOrder(int orderId)
+        {
+            using (var db = new AppDbContext())
+            {
+                return db.ProductionTasks.Where(t => t.OrderId == orderId).ToList();
+            }
+        }
+
+        public ProductionTask GetById(int id)
+        {
+            using (var db = new AppDbContext())
+            {
+                return db.ProductionTasks.FirstOrDefault(t => t.Id == id);
+            }
+        }
+
+        public bool UpdateProgress(int taskId, int quantityCompleted)
+        {
+            if (quantityCompleted <= 0) return false;
+
+            using (var db = new AppDbContext())
+            {
+                var task = db.ProductionTasks.FirstOrDefault(t => t.Id == taskId);
+                if (task == null) return false;
+                task.QuantityCompleted += quantityCompleted;
+                if (task.QuantityCompleted >= task.QuantityAssigned)
+                {
+                    task.QuantityCompleted = task.QuantityAssigned;
+                    task.Status = ProductionTaskStatus.Completed;
+                    task.EndDate = DateTime.Now;
+                }
+                else
+                {
+                    task.Status = ProductionTaskStatus.InProgress;
+                }
+                db.SaveChanges();
+                return true;
+            }
+        }
+    }
+}
