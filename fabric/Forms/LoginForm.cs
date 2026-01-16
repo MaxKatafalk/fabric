@@ -28,7 +28,7 @@ namespace fabric
 
         private void InitializeForm()
         {
-            // Основные настройки формы
+            // Основные настройки 
             this.Text = "Система управления производством";
             this.Width = 380;
             this.Height = 460;
@@ -38,7 +38,7 @@ namespace fabric
             this.MaximizeBox = false;
             this.MinimizeBox = false;
 
-            // Заголовок формы
+            // Заголовок 
             _labelTitle = new Label();
             _labelTitle.Text = "ВХОД В СИСТЕМУ";
             _labelTitle.Font = new Font("Segoe UI", 14, FontStyle.Bold);
@@ -54,7 +54,6 @@ namespace fabric
             _pictureBoxIcon.Left = (this.Width - _pictureBoxIcon.Width) / 2;
             _pictureBoxIcon.BackColor = Color.Transparent;
 
-            // Создаем простую иконку через Graphics
             var bmp = new Bitmap(_pictureBoxIcon.Width, _pictureBoxIcon.Height);
             using (var g = Graphics.FromImage(bmp))
             {
@@ -158,7 +157,7 @@ namespace fabric
             _panelDivider.Height = 1;
             _panelDivider.BackColor = Color.FromArgb(220, 220, 220);
 
-            // Ссылка "Забыли пароль?"
+            // "Забыли пароль?"
             _linkLabelForgot = new LinkLabel();
             _linkLabelForgot.Text = "Забыли пароль?";
             _linkLabelForgot.Font = new Font("Segoe UI", 9);
@@ -177,7 +176,6 @@ namespace fabric
                     MessageBoxIcon.Information);
             };
 
-            // Добавление контролов на форму
             this.Controls.Add(_labelTitle);
             this.Controls.Add(_pictureBoxIcon);
             this.Controls.Add(_labelUsername);
@@ -188,10 +186,8 @@ namespace fabric
             this.Controls.Add(_panelDivider);
             this.Controls.Add(_linkLabelForgot);
 
-            // Обработка нажатия Enter для входа
             this.AcceptButton = _buttonLogin;
 
-            // Обработка нажатия Escape для выхода
             this.KeyPreview = true;
             this.KeyDown += (s, e) =>
             {
@@ -207,7 +203,6 @@ namespace fabric
             string username = _textBoxUsername.Text;
             string password = _textBoxPassword.Text;
 
-            // Визуальная обратная связь при пустых полях
             if (string.IsNullOrWhiteSpace(username))
             {
                 _textBoxUsername.BackColor = Color.FromArgb(255, 230, 230);
@@ -222,7 +217,6 @@ namespace fabric
                 return;
             }
 
-            // Сброс цветов
             _textBoxUsername.BackColor = Color.White;
             _textBoxPassword.BackColor = Color.White;
 
