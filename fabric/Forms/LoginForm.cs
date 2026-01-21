@@ -44,14 +44,10 @@ namespace fabric
             _labelTitle.Font = new Font("Segoe UI", 14, FontStyle.Bold);
             _labelTitle.ForeColor = Color.FromArgb(44, 62, 80);
             _labelTitle.AutoSize = true;
-            _labelTitle.Top = 20;
-            _labelTitle.Left = (this.Width - _labelTitle.Width) / 2;
 
             // Иконка
             _pictureBoxIcon = new PictureBox();
             _pictureBoxIcon.Size = new Size(70, 70);
-            _pictureBoxIcon.Top = 60;
-            _pictureBoxIcon.Left = (this.Width - _pictureBoxIcon.Width) / 2;
             _pictureBoxIcon.BackColor = Color.Transparent;
 
             var bmp = new Bitmap(_pictureBoxIcon.Width, _pictureBoxIcon.Height);
@@ -74,14 +70,10 @@ namespace fabric
             _labelUsername.Text = "Логин";
             _labelUsername.Font = new Font("Segoe UI", 10);
             _labelUsername.ForeColor = Color.FromArgb(52, 73, 94);
-            _labelUsername.Left = 40;
-            _labelUsername.Top = 150;
             _labelUsername.AutoSize = true;
 
             // Поле ввода логина
             _textBoxUsername = new TextBox();
-            _textBoxUsername.Left = 40;
-            _textBoxUsername.Top = 175;
             _textBoxUsername.Width = 300;
             _textBoxUsername.Height = 35;
             _textBoxUsername.Font = new Font("Segoe UI", 10);
@@ -96,14 +88,10 @@ namespace fabric
             _labelPassword.Text = "Пароль";
             _labelPassword.Font = new Font("Segoe UI", 10);
             _labelPassword.ForeColor = Color.FromArgb(52, 73, 94);
-            _labelPassword.Left = 40;
-            _labelPassword.Top = 220;
             _labelPassword.AutoSize = true;
 
             // Поле ввода пароля
             _textBoxPassword = new TextBox();
-            _textBoxPassword.Left = 40;
-            _textBoxPassword.Top = 245;
             _textBoxPassword.Width = 300;
             _textBoxPassword.Height = 35;
             _textBoxPassword.Font = new Font("Segoe UI", 10);
@@ -117,8 +105,6 @@ namespace fabric
             // Кнопка входа
             _buttonLogin = new Button();
             _buttonLogin.Text = "ВОЙТИ";
-            _buttonLogin.Left = 40;
-            _buttonLogin.Top = 310;
             _buttonLogin.Width = 300;
             _buttonLogin.Height = 42;
             _buttonLogin.Font = new Font("Segoe UI", 11, FontStyle.Bold);
@@ -151,8 +137,6 @@ namespace fabric
 
             // Разделитель
             _panelDivider = new Panel();
-            _panelDivider.Left = 40;
-            _panelDivider.Top = 370;
             _panelDivider.Width = 300;
             _panelDivider.Height = 1;
             _panelDivider.BackColor = Color.FromArgb(220, 220, 220);
@@ -161,8 +145,6 @@ namespace fabric
             _linkLabelForgot = new LinkLabel();
             _linkLabelForgot.Text = "Забыли пароль?";
             _linkLabelForgot.Font = new Font("Segoe UI", 9);
-            _linkLabelForgot.Left = (this.Width - _linkLabelForgot.Width) / 2;
-            _linkLabelForgot.Top = 380;
             _linkLabelForgot.AutoSize = true;
             _linkLabelForgot.LinkColor = Color.FromArgb(52, 152, 219);
             _linkLabelForgot.VisitedLinkColor = Color.FromArgb(52, 152, 219);
@@ -176,6 +158,7 @@ namespace fabric
                     MessageBoxIcon.Information);
             };
 
+            // Добавление элементов на форму
             this.Controls.Add(_labelTitle);
             this.Controls.Add(_pictureBoxIcon);
             this.Controls.Add(_labelUsername);
@@ -185,6 +168,12 @@ namespace fabric
             this.Controls.Add(_buttonLogin);
             this.Controls.Add(_panelDivider);
             this.Controls.Add(_linkLabelForgot);
+
+            // Обработчик изменения размера формы
+            this.Resize += (s, e) => RepositionControls();
+
+            // Первоначальное позиционирование
+            RepositionControls();
 
             this.AcceptButton = _buttonLogin;
 
@@ -196,6 +185,48 @@ namespace fabric
                     this.Close();
                 }
             };
+        }
+
+        private void RepositionControls()
+        {
+            int formWidth = this.ClientSize.Width;
+            int centerX = formWidth / 2;
+
+            // Заголовок
+            _labelTitle.Left = centerX - (_labelTitle.Width / 2);
+            _labelTitle.Top = 20;
+
+            // Иконка
+            _pictureBoxIcon.Left = centerX - (_pictureBoxIcon.Width / 2);
+            _pictureBoxIcon.Top = 60;
+
+            // Метка логина (левое выравнивание относительно текстового поля)
+            _labelUsername.Left = centerX - (_textBoxUsername.Width / 2);
+            _labelUsername.Top = 150;
+
+            // Поле ввода логина
+            _textBoxUsername.Left = centerX - (_textBoxUsername.Width / 2);
+            _textBoxUsername.Top = 175;
+
+            // Метка пароля (левое выравнивание относительно текстового поля)
+            _labelPassword.Left = centerX - (_textBoxPassword.Width / 2);
+            _labelPassword.Top = 220;
+
+            // Поле ввода пароля
+            _textBoxPassword.Left = centerX - (_textBoxPassword.Width / 2);
+            _textBoxPassword.Top = 245;
+
+            // Кнопка входа
+            _buttonLogin.Left = centerX - (_buttonLogin.Width / 2);
+            _buttonLogin.Top = 310;
+
+            // Разделитель
+            _panelDivider.Left = centerX - (_panelDivider.Width / 2);
+            _panelDivider.Top = 370;
+
+            // "Забыли пароль?"
+            _linkLabelForgot.Left = centerX - (_linkLabelForgot.Width / 2);
+            _linkLabelForgot.Top = 380;
         }
 
         private void ButtonLogin_Click(object sender, EventArgs e)

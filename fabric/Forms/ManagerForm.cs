@@ -106,11 +106,11 @@ namespace fabric.Forms
             _comboBoxRole.SelectedIndex = 0;
             _comboBoxRole.BackColor = Color.White;
 
-            // Кнопки
-            _buttonAdd = CreateButton("Добавить", 20, 320, Color.FromArgb(46, 204, 113));
+            // Кнопки - опущены ниже и кнопка Удалить выровнена по правому краю
+            _buttonAdd = CreateButton("Добавить", 20, 370, Color.FromArgb(46, 204, 113));
             _buttonAdd.Click += ButtonAdd_Click;
 
-            _buttonDelete = CreateButton("Удалить", 170, 320, Color.FromArgb(231, 76, 60));
+            _buttonDelete = CreateButton("Удалить", 190, 370, Color.FromArgb(231, 76, 60));
             _buttonDelete.Click += ButtonDelete_Click;
 
             // Правая панель 
@@ -390,12 +390,25 @@ namespace fabric.Forms
                 var users = db.Users.ToList();
                 foreach (var u in users)
                 {
-                    string roleName = db.Roles.FirstOrDefault(r => r.Id == u.RoleId)?.Name ?? "Не определена";
+                    string roleName = GetRussianRoleName(u.RoleId); // Используем русские названия
                     string status = u.IsActive ? "✓" : "✗";
                     _listBoxUsers.Items.Add($"{status} {u.Username} ({u.FullName}) - {roleName}");
                 }
                 _labelUserCount.Text = $"Всего пользователей: {users.Count}";
             }
+        }
+
+        // Новый метод для получения русских названий ролей
+        private string GetRussianRoleName(int roleId)
+        {
+            return roleId switch
+            {
+                1 => "Мастер",
+                2 => "Швея",
+                3 => "Кладовщик",
+                4 => "Менеджер",
+                _ => "Не определена"
+            };
         }
 
         private void ShowError(Control control, string message)
