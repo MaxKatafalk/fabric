@@ -186,6 +186,27 @@ namespace fabric.Forms
                 MessageBox.Show("Введите положительное количество");
                 return;
             }
+
+            try
+            {
+                var transactionService = new MaterialTransactionService();
+                bool success = transactionService.RecordTransaction(_selectedMaterial.Id, qty, _currentUser.Id, null);
+
+                if (success)
+                {
+                    MessageBox.Show($"Принято {qty} {_selectedMaterial.Unit} материала \"{_selectedMaterial.Name}\"");
+                    _numericQuantity.Value = 0;
+                    LoadMaterials();
+                }
+                else
+                {
+                    MessageBox.Show("Ошибка при приемке материала");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}");
+            }
         }
 
         private void ButtonHistory_Click(object sender, EventArgs e)
