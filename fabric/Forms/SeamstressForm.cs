@@ -205,6 +205,8 @@ namespace fabric.Forms
 
             if (status.Contains("pending") || status.Contains("ожидан"))
                 return "Ожидание";
+            else if (status.Contains("assigned") || status.Contains("назначен") )
+                return "Назначен";
             else if (status.Contains("progress") || status.Contains("работе") || status.Contains("выполнен"))
                 return "В работе";
             else if (status.Contains("completed") || status.Contains("завершен"))
